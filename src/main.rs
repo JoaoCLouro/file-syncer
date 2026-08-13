@@ -1,3 +1,5 @@
-fn main() {
-    println!("Hello, world!");
+use file_syncer::compress;
+
+fn main () {
+    println!("Nothing yet");
 }
