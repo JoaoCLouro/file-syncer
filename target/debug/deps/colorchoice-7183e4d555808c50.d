@@ -1,0 +1,5 @@
+/home/me/Projetos/file-syncer/target/debug/deps/colorchoice-7183e4d555808c50.d: /home/me/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/colorchoice-1.0.5/src/lib.rs
+
+/home/me/Projetos/file-syncer/target/debug/deps/libcolorchoice-7183e4d555808c50.rmeta: /home/me/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/colorchoice-1.0.5/src/lib.rs
+
+/home/me/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/colorchoice-1.0.5/src/lib.rs:
