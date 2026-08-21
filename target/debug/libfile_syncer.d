@@ -1,1 +1,0 @@
-/home/me/Projetos/file-syncer/target/debug/libfile_syncer.rlib: /home/me/Projetos/file-syncer/src/cli.rs /home/me/Projetos/file-syncer/src/compress.rs /home/me/Projetos/file-syncer/src/lib.rs /home/me/Projetos/file-syncer/src/types.rs
