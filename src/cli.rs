@@ -1,4 +1,4 @@
-use crate::types::{self, Command, Config, SyncerError};
+use crate::types::{self, Command, SyncerError};
 use clap::{Parser};
 
 
@@ -11,11 +11,11 @@ struct Cli {
     event: types::Command,
 }
 
-pub fn parse_args() -> Result<Config, SyncerError> {
+pub fn parse_args() -> Result<Command, SyncerError> {
     let cli = Cli::parse();
 
     match cli.event {
-        Command::Watch {source, destination, verbose, dry_run, debounce: _,}=> {
+        Command::Watch {source, destination, verbose, dry_run, debounce,}=> {
             if verbose {
             println!("Starting watcher...");
             println!("Source: {:?}", source);
@@ -35,7 +35,7 @@ pub fn parse_args() -> Result<Config, SyncerError> {
             }
 
             // If both checks pass, return the config directly
-            Ok(Config { source, destination })
+            Ok(Command::Watch { source, destination, verbose, dry_run, debounce})
         },
 
         // If any more events added match them here

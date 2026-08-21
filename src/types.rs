@@ -1,11 +1,6 @@
 use std::path::{PathBuf};
 use clap::Subcommand;
-
-// Represents the parsed command line arguments
-pub struct Config {
-    pub source: PathBuf,
-    pub destination: PathBuf,
-}
+use thiserror::Error;
 
 // Our domain-specific event, abstracting away the notify crate's complex events
 pub enum SyncEvent {
@@ -15,12 +10,25 @@ pub enum SyncEvent {
 }
 
 // A unified error type for the application
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum SyncerError {
+    // To decide if to keep
+    #[error("")]
     Io(std::io::Error),
+
+    // To decide what to output
+    #[error("")]
     Watch(notify::Error),
+
+    #[error("{0}")]
     Config(String),
+
+    #[error("{0}")]
     ValidationError(String),
+}
+
+impl SyncerError {
+
 }
 
 #[derive(Debug, Clone, Subcommand)]
