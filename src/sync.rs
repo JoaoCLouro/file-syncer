@@ -1,8 +1,35 @@
 use std::{path::{Path, PathBuf}, fs};
 use crate::types::{SyncEvent, SyncerError};
 
-pub fn process_event(event: &SyncEvent, source_root: &Path, dest_root: &Path) -> Result<(), SyncerError> {
-    todo!("Implement syncer logic");
+pub fn process_event(event: &SyncEvent, source_root: &Path, dest_root: &Path, verbose: bool) -> Result<(), SyncerError> {
+    match event {
+        SyncEvent::Created(path) | SyncEvent::Modified(path) => {
+            let dest_path = compute_dest_path(&path, &source_root, &dest_root)?;
+            // Ensure parent dirs exist if any
+            if let Some(parent) = dest_path.parent() {
+                if verbose {println!("Creating needed directories to reach {}", dest_path.display());}
+                std::fs::create_dir_all(parent)?;
+            }
+            std::fs::copy(&path, &dest_path)?;
+            if verbose {println!("File at {} created!", dest_path.display());}
+        }
+
+        SyncEvent::Modified(path) => {
+            todo!("For now the first pattern captures this option! Later on a specific implementation will be made!")
+        }
+
+        SyncEvent::Deleted(path) => {
+            let dest_path = compute_dest_path(&path, &source_root, &dest_root)?;
+            
+            // Ensure file exits
+            if dest_path.exists() {
+                std::fs::remove_file(&dest_path)?;
+                if verbose {println!("File at {} removed!", dest_path.display());}
+            }
+            else if verbose {println!("No match for {} found. Nothing to remove!", dest_path.display());}
+        }
+    }
+    Ok(())
 }
 
 
