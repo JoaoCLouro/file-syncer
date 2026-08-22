@@ -1,5 +1,5 @@
 use crate::types::{self, Command, SyncerError};
-use clap::{Parser};
+use clap::Parser;
 
 
 #[derive(Parser)]
