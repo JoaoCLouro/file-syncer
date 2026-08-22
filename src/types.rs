@@ -14,21 +14,17 @@ pub enum SyncEvent {
 pub enum SyncerError {
     // To decide if to keep
     #[error("")]
-    Io(std::io::Error),
+    Io(#[from] std::io::Error),
 
     // To decide what to output
     #[error("")]
-    Watch(notify::Error),
+    Watch(#[from] notify::Error),
 
     #[error("{0}")]
     Config(String),
 
     #[error("{0}")]
     ValidationError(String),
-}
-
-impl SyncerError {
-
 }
 
 #[derive(Debug, Clone, Subcommand)]
