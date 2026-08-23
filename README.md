@@ -1,5 +1,4 @@
-# File Syncer MVP — Engineering Brief Edition
-
+# File Syncer MVP 
 **One-way file synchronization engine in Rust. Watch a source directory and automatically sync changes to a destination.**
 
 ---
