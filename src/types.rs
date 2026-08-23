@@ -25,6 +25,9 @@ pub enum SyncerError {
 
     #[error("{0}")]
     ValidationError(String),
+    
+    #[error("Program Stopped")]
+    Stop(())
 }
 
 #[derive(Debug, Clone, Subcommand)]

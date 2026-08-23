@@ -1,6 +1,6 @@
-use std::{thread, time::Duration, sync::mpsc};
+use std::sync::mpsc;
 
-use file_syncer::{cli::parse_args, sync::process_event, types::{Command, SyncEvent, SyncerError}, watcher::start_watcher};
+use file_syncer::{cli::parse_args, sync::process_event, types::{Command, SyncerError}, watcher::start_watcher};
 
 fn main () -> Result<(), SyncerError> {
     let config = parse_args()?;
@@ -19,8 +19,13 @@ fn main () -> Result<(), SyncerError> {
             loop {
                 let event = rx.recv().unwrap();
                 if let Err(e) = process_event(&event, &source, &destination, verbose) {
-                    eprintln!("Fatal error: {e}");
-                    std::process::exit(2);
+                    match e {
+                        SyncerError::Stop(()) => break,
+                        _                     => {
+                            eprintln!("Fatal error: {e}");
+                            std::process::exit(2);
+                        }
+                    }
                 }
             }
         }
