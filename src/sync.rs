@@ -14,10 +14,6 @@ pub fn process_event(event: &SyncEvent, source_root: &Path, dest_root: &Path, ve
             if verbose {println!("File at {} created!", dest_path.display());}
         }
 
-        SyncEvent::Modified(path) => {
-            todo!("For now the first pattern captures this option! Later on a specific implementation will be made!")
-        }
-
         SyncEvent::Deleted(path) => {
             let dest_path = compute_dest_path(&path, &source_root, &dest_root)?;
             
