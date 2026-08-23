@@ -222,6 +222,7 @@ ls -la /path/to/destination
 | `notify` | File system watching | ^5.0 |
 | `clap` | CLI argument parsing | ^4.0 (with derive) |
 | `tempfile` | Testing (temp directories) | ^3.0 |
+| `ctrlc` | Ctrl-C handler | ^3.0 | 
 
 ---
 
