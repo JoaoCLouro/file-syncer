@@ -7,19 +7,17 @@ pub enum SyncEvent {
     Created(PathBuf),
     Modified(PathBuf),
     Deleted(PathBuf),
-    Stop(),
+    Stop,
 }
 
 // A unified error type for the application
 #[derive(Error, Debug)]
 pub enum SyncerError {
-    // To decide if to keep
     #[error("")]
     Io(#[from] std::io::Error),
 
-    // To decide what to output
-    #[error("")]
-    Watch(#[from] notify::Error),
+    #[error("{0}")]
+    Watch(String),
 
     #[error("{0}")]
     Config(String),

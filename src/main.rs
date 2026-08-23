@@ -1,6 +1,6 @@
 use std::sync::mpsc;
 
-use file_syncer::{cli::parse_args, sync::process_event, types::{Command, SyncerError}, watcher::start_watcher};
+use file_syncer::{cli::parse_args, sync::process_event, types::{Command, SyncerError, SyncEvent}, watcher::start_watcher};
 
 fn main () -> Result<(), SyncerError> {
     let config = parse_args()?;
@@ -10,6 +10,14 @@ fn main () -> Result<(), SyncerError> {
             
             // Channel to communicate with the watcher thread
             let (tx, rx) = mpsc::channel();
+            
+            // Sets a ctl-c handler to trigger a graceful exit
+            let tx_clone = tx.clone();
+            ctrlc::set_handler(move || {
+                println!("\nReceived interrupt signal, stopping...");
+                let _ = tx_clone.send(SyncEvent::Stop);
+            }).expect("Error setting Ctrl-C handler");
+            
             // watcher runs on a different thread
             if let Err(e) = start_watcher(&source, tx, debounce) {
                     eprintln!("Fatal error: {e}");
@@ -20,7 +28,7 @@ fn main () -> Result<(), SyncerError> {
                 let event = rx.recv().unwrap();
                 if let Err(e) = process_event(&event, &source, &destination, verbose, dry_run) {
                     match e {
-                        SyncerError::Stop(()) => break,
+                        SyncerError::Stop(_) => break,
                         _                     => {
                             eprintln!("Fatal error: {e}");
                             std::process::exit(2);

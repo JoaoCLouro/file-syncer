@@ -27,7 +27,7 @@ pub fn process_event(event: &SyncEvent, source_root: &Path, dest_root: &Path, ve
 
         },
 
-        SyncEvent::Stop() => {
+        SyncEvent::Stop => {
             // Triggers the program stop (Not an actual error)
             return Err(Stop(()))
         }
