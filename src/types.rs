@@ -7,6 +7,7 @@ pub enum SyncEvent {
     Created(PathBuf),
     Modified(PathBuf),
     Deleted(PathBuf),
+    Stop(),
 }
 
 // A unified error type for the application

@@ -18,7 +18,7 @@ fn main () -> Result<(), SyncerError> {
             // Receiving loop
             loop {
                 let event = rx.recv().unwrap();
-                if let Err(e) = process_event(&event, &source, &destination, verbose) {
+                if let Err(e) = process_event(&event, &source, &destination, verbose, dry_run) {
                     match e {
                         SyncerError::Stop(()) => break,
                         _                     => {
