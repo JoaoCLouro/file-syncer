@@ -42,3 +42,56 @@ fn compute_dest_path(src_file: &Path, src_root: &Path, dest_root: &Path) -> Resu
     })?;
     Ok(dest_root.join(rel_path))
 }
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use tempfile::{TempDir, tempdir};
+
+    fn tmp_root() -> TempDir {
+        tempdir().expect("failed to create a temporary directory")
+    }
+
+    #[test]
+    fn test_compute_dest_path_success() {
+        // Base directories to strip 
+        let source_root = tmp_root();
+        let dest_root = tmp_root();
+
+        let source = source_root.path();
+        let dest = dest_root.path();
+
+        // Prefix and full path to assert
+        let file_pref = PathBuf::from("project/testable");
+        let src_file_path: PathBuf = source.join(&file_pref);
+        let dest_file_path: PathBuf = dest.join(&file_pref);
+
+        let mut computed = compute_dest_path(&src_file_path, source, dest).expect("Failed to calculate path");
+        assert_eq!(computed, dest.join(&file_pref));
+
+        computed = compute_dest_path(&dest_file_path, dest, source).expect("Failed to calculate path");
+        assert_eq!(computed, source.join(&file_pref));
+    }
+
+    #[test]
+    fn test_compute_dest_path_mismatched_prefix_fails() {
+        // Base directories to strip 
+        let source_root = tmp_root();
+        let dest_root = tmp_root();
+
+        let source = source_root.path();
+        let dest = dest_root.path();
+
+        // Dir to mismatch
+        let tmp_path = PathBuf::from("/unmatchable_path/file/");
+
+        assert!(matches!(
+            compute_dest_path(&tmp_path, source, dest),
+            Err(SyncerError::ValidationError(_))
+        ));
+        assert!(matches!(
+            compute_dest_path(&tmp_path, dest, source),
+            Err(SyncerError::ValidationError(_))
+        ));
+    }
+}
