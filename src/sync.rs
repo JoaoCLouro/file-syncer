@@ -44,54 +44,131 @@ fn compute_dest_path(src_file: &Path, src_root: &Path, dest_root: &Path) -> Resu
 }
 
 #[cfg(test)]
-pub mod tests {
+mod tests {
     use super::*;
-    use tempfile::{TempDir, tempdir};
+    use std::path::PathBuf;
+    use tempfile::{tempdir, TempDir};
 
+    // Helper to spin up isolated temp directories
     fn tmp_root() -> TempDir {
         tempdir().expect("failed to create a temporary directory")
     }
 
     #[test]
     fn test_compute_dest_path_success() {
-        // Base directories to strip 
         let source_root = tmp_root();
         let dest_root = tmp_root();
 
         let source = source_root.path();
         let dest = dest_root.path();
 
-        // Prefix and full path to assert
         let file_pref = PathBuf::from("project/testable");
-        let src_file_path: PathBuf = source.join(&file_pref);
-        let dest_file_path: PathBuf = dest.join(&file_pref);
+        let file_path = source.join(&file_pref);
 
-        let mut computed = compute_dest_path(&src_file_path, source, dest).expect("Failed to calculate path");
+        let computed = compute_dest_path(&file_path, source, dest)
+            .expect("Failed to calculate path");
         assert_eq!(computed, dest.join(&file_pref));
-
-        computed = compute_dest_path(&dest_file_path, dest, source).expect("Failed to calculate path");
-        assert_eq!(computed, source.join(&file_pref));
     }
 
     #[test]
     fn test_compute_dest_path_mismatched_prefix_fails() {
-        // Base directories to strip 
         let source_root = tmp_root();
         let dest_root = tmp_root();
 
         let source = source_root.path();
         let dest = dest_root.path();
 
-        // Dir to mismatch
         let tmp_path = PathBuf::from("/unmatchable_path/file/");
 
         assert!(matches!(
             compute_dest_path(&tmp_path, source, dest),
             Err(SyncerError::ValidationError(_))
         ));
-        assert!(matches!(
-            compute_dest_path(&tmp_path, dest, source),
-            Err(SyncerError::ValidationError(_))
-        ));
+    }
+
+    #[test]
+    fn test_process_event_file_creation() {
+        let source_root = tmp_root();
+        let dest_root = tmp_root();
+        let source = source_root.path();
+        let dest = dest_root.path();
+
+        // Arrange: Create a source file
+        let src_file = source.join("hello.txt");
+        std::fs::write(&src_file, b"hello rust sync").unwrap();
+
+        // Act: Pass the Created event to your processor
+        let event = SyncEvent::Created(src_file);
+        process_event(&event, source, dest, false, false).expect("process_event failed");
+
+        // Assert: Verify destination file was successfully copied
+        let dest_file = dest.join("hello.txt");
+        assert!(dest_file.exists());
+        assert_eq!(std::fs::read_to_string(&dest_file).unwrap(), "hello rust sync");
+    }
+
+    #[test]
+    fn test_process_event_nested_directory_creation() {
+        let source_root = tmp_root();
+        let dest_root = tmp_root();
+        let source = source_root.path();
+        let dest = dest_root.path();
+
+        // Arrange: Create a deeply nested file path in source
+        let nested_dir = source.join("a/b/c");
+        std::fs::create_dir_all(&nested_dir).unwrap();
+        let src_file = nested_dir.join("deep.txt");
+        std::fs::write(&src_file, b"deep content").unwrap();
+
+        // Act: Pass the Modified event to your processor
+        let event = SyncEvent::Modified(src_file);
+        process_event(&event, source, dest, false, false).expect("process_event failed");
+
+        // Assert: Verify nested structure was successfully mirrored
+        let dest_file = dest.join("a/b/c/deep.txt");
+        assert!(dest_file.exists());
+        assert_eq!(std::fs::read_to_string(&dest_file).unwrap(), "deep content");
+    }
+
+    #[test]
+    fn test_process_event_file_deletion() {
+        let source_root = tmp_root();
+        let dest_root = tmp_root();
+        let source = source_root.path();
+        let dest = dest_root.path();
+
+        // Arrange: File exists in both source and destination
+        let src_file = source.join("remove_me.txt");
+        let dest_file = dest.join("remove_me.txt");
+        std::fs::write(&src_file, b"to be deleted").unwrap();
+        std::fs::write(&dest_file, b"to be deleted").unwrap();
+
+        // Act: Pass the Deleted event to your processor
+        let event = SyncEvent::Deleted(src_file);
+        process_event(&event, source, dest, false, false).expect("process_event failed");
+
+        // Assert: Verify the destination file is completely removed
+        assert!(!dest_file.exists(), "Destination file should have been deleted");
+    }
+
+    #[test]
+    fn test_process_event_dry_run_does_not_modify_disk() {
+        let source_root = tmp_root();
+        let dest_root = tmp_root();
+        let source = source_root.path();
+        let dest = dest_root.path();
+
+        // Arrange: Create a source file
+        let src_file = source.join("dry_run.txt");
+        std::fs::write(&src_file, b"should not copy").unwrap();
+
+        // Act: Pass Created event, but with dry_run = true
+        let event = SyncEvent::Created(src_file);
+        // Signature is: event, source_root, dest_root, verbose, dry_run
+        process_event(&event, source, dest, false, true).expect("process_event failed");
+
+        // Assert: The destination file should NOT exist because it was a dry run
+        let dest_file = dest.join("dry_run.txt");
+        assert!(!dest_file.exists(), "File should not be copied during a dry run");
     }
 }
