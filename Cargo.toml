@@ -2,6 +2,11 @@
 name = "file-syncer"
 version = "0.1.0"
 edition = "2024"
+authors = ["Joao Louro <joaocarrilholouro@gmail.com>"]
+description = "A fast, lightweight event-driven file synchronizer built in Rust."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/JoaoCLouro/file-syncer"
 
 [dependencies]
 clap = { version = "4.6.6", features = ["derive"] }
