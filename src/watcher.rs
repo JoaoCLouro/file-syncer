@@ -30,6 +30,10 @@ pub fn start_watcher (src_root: &PathBuf, tx: Sender<SyncEvent>, _debounce: u64)
                         eprintln!("No path found for remove event");
                     }
                 },
+
+                notify::EventKind::Access(_) => {
+                    // Silently ignore open/close metadata access events
+                },
                 other => {
                     eprintln!("Unsupported operation event {:?}", other);
                 }

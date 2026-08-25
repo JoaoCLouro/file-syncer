@@ -3,6 +3,7 @@ use clap::Subcommand;
 use thiserror::Error;
 
 // Our domain-specific event, abstracting away the notify crate's complex events
+#[derive(Debug)]
 pub enum SyncEvent {
     Created(PathBuf),
     Modified(PathBuf),

@@ -5,6 +5,18 @@ pub fn process_event(event: &SyncEvent, source_root: &Path, dest_root: &Path, ve
     match event {
         SyncEvent::Created(path) | SyncEvent::Modified(path) => {
             let dest_path = compute_dest_path(&path, &source_root, &dest_root)?;
+
+            // If the event path is a directory, mirror the directory creation
+            if path.is_dir() {
+                if !dry_run {
+                    fs::create_dir_all(&dest_path)?;
+                }
+                if verbose {
+                    println!("Directory created at {}", dest_path.display());
+                }
+                return Ok(());
+            }
+
             // Ensure parent dirs exist if any
             if let Some(parent) = dest_path.parent() {
                 if verbose {println!("Creating needed directories to reach {}", dest_path.display());}
@@ -22,7 +34,13 @@ pub fn process_event(event: &SyncEvent, source_root: &Path, dest_root: &Path, ve
                 if verbose {println!("No match for {} found. Nothing to remove!", dest_path.display());}
                 return Ok(());
             }
-            if !dry_run {fs::remove_file(&dest_path)?;}
+            if !dry_run {
+                if dest_path.is_dir() {
+                    fs::remove_dir_all(&dest_path)?;
+                } else {
+                    fs::remove_file(&dest_path)?;
+                }
+            }
             if verbose {println!("File at {} removed!", dest_path.display());}
 
         },
