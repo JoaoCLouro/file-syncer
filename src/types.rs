@@ -11,6 +11,14 @@ pub enum SyncEvent {
     Stop,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ConflictStrategy {
+    NewerWins,
+    ManualPrompt,
+    SourceWins,
+    DestWins,
+}
+
 // A unified error type for the application
 #[derive(Error, Debug)]
 pub enum SyncerError {
