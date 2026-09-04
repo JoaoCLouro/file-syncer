@@ -1,4 +1,4 @@
-use std::path::{PathBuf};
+use std::{path::PathBuf, time::SystemTime};
 use clap::Subcommand;
 use thiserror::Error;
 
@@ -25,7 +25,15 @@ pub enum SyncerError {
 
     #[error("{0}")]
     ValidationError(String),
+
+    // new error type for access hashing
+    #[error("{0}")]
+    HashError(String),
     
+    // new error type for conflict detection
+    #[error("{0}")]
+    ConflictError(String),
+
     #[error("Program Stopped")]
     Stop(())
 }
@@ -48,6 +56,5 @@ pub enum Command {
         #[arg(long, default_value = "500")]
         debounce: u64,
 
-        // Add another needed flags later
     }
 }
