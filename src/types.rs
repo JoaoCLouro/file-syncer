@@ -1,6 +1,7 @@
 use std::{path::PathBuf, time::SystemTime};
 use clap::Subcommand;
 use thiserror::Error;
+use serde_derive::Deserialize;
 
 // Our domain-specific event, abstracting away the notify crate's complex events
 #[derive(Debug)]
@@ -28,12 +29,15 @@ pub struct FileMetaData {
     pub hash: String,   // Hash of the file content for conflict detection
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub enum ConflictStrategy {
-    #[default]
+    #[serde(rename = "newer")]
     NewerWins,
+    #[serde(rename = "manual")]
     ManualPrompt,
+    #[serde(rename = "source")]
     SourceWins,
+    #[serde(rename = "dest")]
     DestWins,
 }
 

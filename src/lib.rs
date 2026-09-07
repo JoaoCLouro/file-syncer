@@ -3,3 +3,4 @@ pub mod types;
 pub mod cli;
 pub mod watcher;
 pub mod sync;
+pub mod index;
