@@ -5,11 +5,20 @@ use thiserror::Error;
 // Our domain-specific event, abstracting away the notify crate's complex events
 #[derive(Debug)]
 pub enum SyncEvent {
-    Created(PathBuf),
-    Modified(PathBuf),
-    Deleted(PathBuf),
+    TriggerScan,
     Stop,
 }
+
+/// Newly added precise sync action 
+#[derive(Debug, Clone, PartialEq)]  // Might add hash trait later for conflict detection
+pub enum SyncAction {
+    CopySourceToDest(PathBuf),
+    CopyDestToSource(PathBuf),
+    DeleteSource(PathBuf),
+    DeleteDest(PathBuf),
+    Conflict(PathBuf, SystemTime, SystemTime), // Path, source modified time, destination modified time
+}
+
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileMetaData {
