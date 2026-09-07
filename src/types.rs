@@ -11,8 +11,17 @@ pub enum SyncEvent {
     Stop,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
+pub struct FileMetaData {
+    pub relative_path: PathBuf,
+    pub size: u64,
+    pub modified_time: SystemTime,
+    pub hash: String,   // Hash of the file content for conflict detection
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum ConflictStrategy {
+    #[default]
     NewerWins,
     ManualPrompt,
     SourceWins,
