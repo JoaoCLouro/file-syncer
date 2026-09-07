@@ -4,3 +4,4 @@ pub mod cli;
 pub mod watcher;
 pub mod sync;
 pub mod index;
+pub mod planner;

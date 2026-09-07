@@ -11,7 +11,7 @@ pub enum SyncEvent {
 }
 
 /// Newly added precise sync action 
-#[derive(Debug, Clone, PartialEq)]  // Might add hash trait later for conflict detection
+#[derive(Debug, Clone, PartialEq)]
 pub enum SyncAction {
     CopySourceToDest(PathBuf),
     CopyDestToSource(PathBuf),
