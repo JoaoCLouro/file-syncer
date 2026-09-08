@@ -1,5 +1,5 @@
 // Module responsible for the bidirectional synchronization planning
-use std::{collections::HashMap, path::{Path, PathBuf}};
+use std::{collections::HashMap, path::{PathBuf}};
 use crate::types::{FileMetaData, SyncAction, SyncerError};
 
 pub fn compute_sync_plan(source_index: &HashMap<PathBuf, FileMetaData,>, dest_index: &HashMap<PathBuf, FileMetaData>) -> Result<Vec<SyncAction>, SyncerError> {
@@ -30,8 +30,5 @@ pub fn compute_sync_plan(source_index: &HashMap<PathBuf, FileMetaData,>, dest_in
             actions.push(SyncAction::CopyDestToSource(entry.clone()));
         }
     }
-
-    todo!("Create a method to eval deletions! Could use a small data base for previous hashmaps");
-
     Ok(actions)
 }
