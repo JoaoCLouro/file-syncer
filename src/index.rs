@@ -47,13 +47,14 @@ pub fn scan_directory_tree(root: &Path, ignore_patterns: &[String]) -> Result<Ha
                                                 match compute_file_hash(path) {
                                                     Ok(hash) => {
                                                         let metadata = std::fs::metadata(path)?;
+                                                        let pb_path = path.strip_prefix(root).unwrap().to_path_buf();
                                                         let file_meta = FileMetaData {
-                                                            relative_path: path.strip_prefix(root).unwrap().to_path_buf(),
+                                                            relative_path: pb_path.to_string_lossy().into_owned(),
                                                             size: metadata.len(),
-                                                            modified_time: metadata.modified()?,
+                                                            modified_time: metadata.modified()?.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
                                                             hash,
                                                         };
-                                                        file_map.insert(file_meta.relative_path.clone(), file_meta);
+                                                        file_map.insert(pb_path.clone(), file_meta);
                                                     },
             
                                                     Err(e) => {

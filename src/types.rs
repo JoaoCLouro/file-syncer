@@ -16,7 +16,7 @@ pub enum SyncAction {
     CopyDestToSource(PathBuf),
     DeleteSource(PathBuf),
     DeleteDest(PathBuf),
-    Conflict(PathBuf, SystemTime, SystemTime),
+    Conflict(PathBuf, u64, u64),    // Path, source modified time, dest modified time
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Archive, RkyvSerialize, RkyvDeserialize)]
