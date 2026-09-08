@@ -1,7 +1,7 @@
 use std::{path::PathBuf, time::SystemTime};
 use clap::Subcommand;
 use thiserror::Error;
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 // Our domain-specific event, abstracting away the notify crate's complex events
 #[derive(Debug)]
