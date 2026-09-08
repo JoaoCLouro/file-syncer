@@ -1,4 +1,4 @@
-use std::{path::PathBuf, time::SystemTime};
+use std::{path::PathBuf};
 use clap::Subcommand;
 use thiserror::Error;
 use serde::Deserialize;
@@ -21,7 +21,7 @@ pub enum SyncAction {
 
 #[derive(Debug, Clone, PartialEq, Eq, Archive, RkyvSerialize, RkyvDeserialize)]
 pub struct FileMetaData {
-    pub relative_path: String,  // PathBuf convertion to string for serialization
+    pub relative_path: String,  // PathBuf conversion to string for serialization
     pub size: u64,
     pub modified_time: u64,     // SystemTime converted to u64 for serialization
     pub hash: String,
