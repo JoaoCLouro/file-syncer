@@ -1,8 +1,10 @@
+// To determine its use
 pub mod compress;
+
 pub mod types;
-pub mod cli;
-pub mod watcher;
-pub mod sync;
-// New modules
-pub mod index;
+pub mod config; // new cli
+pub mod state;  // new watcher
 pub mod planner;
+pub mod index;
+pub mod conflict;   // conflict handler
+pub mod executor;   
