@@ -20,6 +20,7 @@ pub enum SyncAction {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Archive, RkyvSerialize, RkyvDeserialize)]
+#[archive(check_bytes)]
 pub struct FileMetaData {
     pub relative_path: String,  // PathBuf conversion to string for serialization
     pub size: u64,

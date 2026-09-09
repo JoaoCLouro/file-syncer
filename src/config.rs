@@ -1,3 +1,8 @@
+/// Module for managing configuration of the syncer application, including command-line arguments and TOML configuration files.
+/// This module provides functionality to parse command-line arguments using `clap`, load configuration from a TOML file, and combine both sources into a runtime configuration structure.
+/// The configuration management is designed to be flexible, allowing users to specify settings via command-line arguments or a configuration file, with sensible defaults provided for missing values.
+
+
 use std::path::{Path, PathBuf};
 use std::fs;
 use clap::Parser;
