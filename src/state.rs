@@ -1,3 +1,7 @@
+/// Module for managing the state of the syncer application, including database initialization, retrieval, saving, and removal of file metadata.
+/// This module provides functionality to interact with a sled database for storing and retrieving file metadata, which is essential for tracking the state of files during synchronization.
+/// The state management is designed to ensure data integrity and efficient access to file metadata, allowing the syncer application to maintain a consistent view of the file system across synchronization operations.
+
 use std::path::Path;
 use crate::types::{FileMetaData, SyncerError};
 use rkyv::{Deserialize as RkyvDeserialize, Infallible};
