@@ -13,7 +13,7 @@ use crate::types::{Command, ConflictStrategy, SyncerError};
 /// Command Line Interface (CLI) configuration for the syncer application.
 #[derive(Parser)]
 #[command(name = "syncer")]
-#[command(about = "A local one-way file synchronization engine", long_about = None)]
+#[command(about = "A local bidirectional file synchronization engine", long_about = None)]
 struct Cli {
     // Event log
     #[command(subcommand)]
@@ -43,6 +43,18 @@ impl Default for TomlConfig {
             ignore_patterns: Vec::new(),
         }
     }
+}
+
+#[derive(Debug, Clone)]
+/// Runtime configuration that combines CLI arguments and TOML configuration.
+pub struct RuntimeConfig {
+    pub source: PathBuf,
+    pub destination: PathBuf,
+    pub verbose: bool,
+    pub dry_run: bool,
+    pub debounce: u64,
+    pub conflict_strategy: ConflictStrategy,
+    pub ignore_patterns: Vec<String>,
 }
 
 
@@ -102,5 +114,18 @@ pub fn load_toml_config(path: &Path) -> Result<TomlConfig, SyncerError> {
 }
 
 pub fn build_runtime(cli: Command, toml: TomlConfig) -> RuntimeConfig {
-    
+    match cli {
+        Command::Watch { source, destination, verbose, dry_run, debounce } => {
+            RuntimeConfig {
+                source,
+                destination,
+                verbose,
+                dry_run,
+                debounce,
+                conflict_strategy: toml.conflict_strategy,
+                ignore_patterns: toml.ignore_patterns,
+            }
+        },
+        // Match potential future commands here
+    }
 }
