@@ -130,45 +130,8 @@ Want code on multiple devices, with a central source of truth:
 
 ## Features Roadmap
 
-### ✅ MVP (Weeks 1-2): P2P One-Way Sync Foundation
 
-**Core Functionality:**
-- Watch a source directory for file changes
-- One-way sync: propagate changes to destination
-- CLI command: `syncer watch <source> <dest>`
-- Basic error handling
-- Console output showing sync activity
-
-**What You'll Learn:**
-- File system APIs
-- Error handling with Result/Option
-- Structs and pattern matching
-- Basic async with tokio
-
-**Deliverable:** Working one-way P2P sync
-
----
-
-### 🔄 v1.5 (Weeks 3-4): P2P Bidirectional & Conflicts
-
-**New Features:**
-- Bidirectional sync (both directions)
-- Conflict detection (same file changed both sides)
-- Conflict resolution strategies (newer wins, ask user, manual)
-- Ignore patterns (`.gitignore`-style)
-- Status command showing pending/conflicted files
-
-**What You'll Learn:**
-- Two-way async operations
-- State tracking and race conditions
-- Configuration file parsing
-- User interaction in CLI
-
-**Deliverable:** Bidirectional P2P sync with conflict resolution
-
----
-
-### 🖥️ v2 (Weeks 5-6): Central Server Mode
+### 🖥️ v3 : Central Server Mode
 
 **New Architecture:**
 - **Server Component** (runs on Raspberry Pi or mini server)
@@ -247,20 +210,11 @@ sync_mode = "realtime"
 strategy = "newer"  # or "ask", "manual"
 ```
 
-**What You'll Learn:**
-- HTTP server implementation (tokio-based)
-- RESTful API design
-- Client-server communication patterns
-- Authentication and authorization
-- File versioning and history tracking
-- Offline-first architecture (queuing changes)
-- Multi-client state management
-
 **Deliverable:** Working central server + client architecture
 
 ---
 
-### 📋 Future Enhancements (Post-v2)
+### 📋 Future Enhancements (Post-v3)
 
 - **WebSocket support** — Real-time sync updates instead of polling
 - **Delta sync** — Only transfer file changes (diffs), not full files
@@ -278,7 +232,7 @@ strategy = "newer"  # or "ask", "manual"
 
 ## Technical Architecture
 
-### P2P Mode (v1-v1.5)
+### P2P Mode (v1-v2)
 ```
 Device A ←→ File System Watcher
    ↓
@@ -346,6 +300,8 @@ Device B ←→ File System Operations
 - `clap` — CLI argument parsing
 - `serde` & `toml` — Configuration
 - `tempfile` — Testing
+- `serde` - data base api
+- `rkyv` - serialization and deserialization
 
 **Server Mode (v2+):**
 - Above +
@@ -367,40 +323,7 @@ Device B ←→ File System Operations
 
 ## Implementation Plan
 
-### Weeks 1-2: MVP — P2P One-Way Sync
-
-**Server/Pi Note:** Not needed yet. Just local sync.
-
-Tasks:
-1. Set up Cargo project
-2. Implement file system watcher using `notify`
-3. One-way sync logic (copy new/modified/deleted files)
-4. Basic CLI: `syncer watch <source> <dest>`
-5. Tests with `tempfile`
-
-**Deliverable:** Working one-way P2P sync
-
----
-
-### Weeks 3-4: v1.5 — P2P Bidirectional & Conflicts
-
-**Server/Pi Note:** Still not needed. Pure P2P.
-
-Tasks:
-1. Bidirectional sync (both directions)
-2. Conflict detection (same file changed both sides)
-3. Conflict resolution strategies
-4. Ignore patterns (`.gitignore`)
-5. `syncer status` command
-6. Configuration file support
-
-**Deliverable:** Bidirectional P2P sync with conflicts
-
----
-
-### Weeks 5-6: v2 — Central Server Mode
-
-**Now the Raspberry Pi/mini server comes in.**
+### v3 — Central Server Mode
 
 Tasks:
 
@@ -534,49 +457,10 @@ Resolution: Newer wins → Use my version (I changed it last)
 
 ---
 
-## Success Criteria
-
-**MVP (Week 2):**
-- One-way sync works reliably
-- CLI is functional
-- Basic tests pass
-- GitHub repo has clear documentation
-
-**v1.5 (Week 4):**
-- Bidirectional sync works
-- Conflicts detected and resolved
-- Ignore patterns work
-- Status command is useful
-
-**v2 (Week 6):**
-- Server starts and listens for clients
-- Client connects and syncs files
-- Conflicts from multiple clients are resolved
-- Audit log tracks changes
-- Daemon mode is stable and reliable
-- Ready for personal multi-device use or small team
-
----
-
-## Why This Matters
+## Use cases
 
 ✅ **Solves real problems:** Dual-boot, multiple machines, offline teams  
 ✅ **Teaches multiple Rust domains:** Async, file I/O, HTTP, databases, CLI  
-✅ **Portfolio-worthy:** Shows systems thinking and architecture depth  
-✅ **Scoped well:** MVP → v2 is a natural progression  
 ✅ **Grows with needs:** P2P for simple cases, server for complex scenarios  
 ✅ **Self-hosted alternative:** No cloud dependency, full control  
 
----
-
-## Getting Started
-
-1. Read this entire README to understand the vision
-2. Start with **Weeks 1-2 (MVP)** — P2P one-way sync, no server
-3. Build incrementally — each phase delivers value on its own
-4. The server component (v2) is optional — P2P mode is complete and useful
-5. Track progress week-by-week against the implementation plan
-
----
-
-**Start simple, scale as needed. Begin with the MVP.**
