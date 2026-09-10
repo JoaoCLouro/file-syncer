@@ -16,6 +16,7 @@ pub enum SyncAction {
     CopyDestToSource(PathBuf),
     DeleteSource(PathBuf),
     DeleteDest(PathBuf),
+    ManualResolution(PathBuf, PathBuf), // Source path, Destination path
     Conflict(PathBuf, u64, u64),    // Path, source modified time, dest modified time
 }
 
