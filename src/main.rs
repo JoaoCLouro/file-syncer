@@ -23,7 +23,7 @@ fn main() -> Result<(), SyncerError> {
             let debounce_duration = Duration::from_millis(debounce);
 
             // Defines the sync cycle as a closure so we can call it on startup AND on events
-            let mut run_sync_cycle = || -> Result<(), SyncerError> {
+            let run_sync_cycle = || -> Result<(), SyncerError> {
                 if runtime.verbose { println!("Starting reconciliation cycle..."); }
                 
                 let source_map = index::scan_directory_tree(&runtime.source, &runtime.ignore_patterns)?;
