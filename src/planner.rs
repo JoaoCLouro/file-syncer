@@ -4,6 +4,7 @@ use sled::Db;
 
 use crate::types::{FileMetaData, SyncAction, ConflictStrategy, SyncerError};
 use crate::state::get_historical_state;
+use crate::conflict::resolve_conflict;
 
 
 pub fn generate_sync_plan(source_map: &HashMap<String, FileMetaData>, dest_map: &HashMap<String, FileMetaData>, db: &Db, conflict_strategy: &ConflictStrategy) -> Result<Vec<SyncAction>, SyncerError> {
@@ -28,7 +29,7 @@ pub fn generate_sync_plan(source_map: &HashMap<String, FileMetaData>, dest_map: 
             }
             
             // 2. SOURCE ONLY: Exists in source, missing in destination
-            (Some(src_meta), None) => {
+            (Some(_), None) => {
                 if in_history.is_some() {
                     // It was synced before, meaning it was intentionally deleted from the destination
                     plan.push(SyncAction::DeleteSource(PathBuf::from(key)));
@@ -39,7 +40,7 @@ pub fn generate_sync_plan(source_map: &HashMap<String, FileMetaData>, dest_map: 
             }
             
             // 3. DESTINATION ONLY: Exists in destination, missing in source
-            (None, Some(dest_meta)) => {
+            (None, Some(_)) => {
                 if in_history.is_some() {
                     // It was synced before, meaning it was intentionally deleted from the source
                     plan.push(SyncAction::DeleteDest(PathBuf::from(key)));
@@ -55,29 +56,4 @@ pub fn generate_sync_plan(source_map: &HashMap<String, FileMetaData>, dest_map: 
     }
 
     Ok(plan)
-}
-
-fn resolve_conflict(source_file: &FileMetaData, dest_file: &FileMetaData, strategy: &ConflictStrategy) -> SyncAction {
-    let path = PathBuf::from(&source_file.relative_path);
-    
-    match strategy {
-        ConflictStrategy::NewerWins => {
-            if source_file.modified_time >= dest_file.modified_time {
-                SyncAction::CopySourceToDest(path)
-            } else {
-                SyncAction::CopyDestToSource(path)
-            }
-        },
-        ConflictStrategy::SourceWins => {
-            SyncAction::CopySourceToDest(path)
-        },
-        ConflictStrategy::DestWins => {
-            SyncAction::CopyDestToSource(path)
-        },
-        ConflictStrategy::ManualPrompt => {
-            // Your enum expects (Source path, Destination path). 
-            // Passing the relative path twice allows the executor to append the root directories later.
-            SyncAction::ManualResolution(path.clone(), path)
-        }
-    }
 }
