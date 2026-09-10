@@ -1,4 +1,7 @@
 // Module responsible for the indexing and hashing of the file system
+// This module provides functionality to scan a directory tree, compute file hashes, and generate a mapping of file paths to their corresponding metadata. It is essential for maintaining an up-to-date index of the file system, which is used in synchronization operations.
+
+
 use walkdir::WalkDir;
 use std::{collections::HashMap, path::{Path}};
 use crate::types::{FileMetaData, SyncerError};
