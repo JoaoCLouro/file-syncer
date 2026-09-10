@@ -28,9 +28,9 @@ A high-performance, multi-threaded bidirectional file synchronization engine bui
 Download the latest release binary and configure it to run automatically on boot via a systemd user service.
 
 ```bash
-curl -LO https://github.com/yourusername/file-syncer/releases/download/v0.2.0/file-syncer-0.2.0-linux-x86_64.tar.gz
-tar -xzf file-syncer-0.2.0-linux-x86_64.tar.gz
-cd file-syncer-0.2.0
+curl -LO https://github.com/yourusername/file-syncer/releases/download/v1.0.0/file-syncer-1.0.0-linux-x86_64.tar.gz
+tar -xzf file-syncer-1.0.0-linux-x86_64.tar.gz
+cd file-syncer-1.0.0
 chmod +x install.sh
 ./install.sh
 ```
@@ -40,9 +40,9 @@ chmod +x install.sh
 Build the release binary directly with Cargo:
 
 ```bash
-curl -LO https://github.com/yourusername/file-syncer/archive/refs/tags/v0.2.0.tar.gz
-tar -xzf v0.2.0.tar.gz
-cd file-syncer-0.2.0
+curl -LO https://github.com/yourusername/file-syncer/archive/refs/tags/v1.0.0.tar.gz
+tar -xzf v1.0.0.tar.gz
+cd file-syncer-1.0.0
 cargo build --release
 ```
 
