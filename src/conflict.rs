@@ -53,3 +53,50 @@ pub fn handle_manual_resolution(relative_path: &Path) -> Result<Option<SyncActio
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::{FileMetaData, ConflictStrategy, SyncAction};
+    use std::path::PathBuf;
+
+    // Helper to quickly spawn metadata payloads in memory
+    fn mock_metadata(time: u64) -> FileMetaData {
+        FileMetaData {
+            relative_path: "code/main.rs".to_string(),
+            size: 1024,
+            modified_time: time,
+            hash: "dummy_hash".to_string(),
+        }
+    }
+
+    #[test]
+    fn test_strategy_newer_wins() {
+        let older_file = mock_metadata(1000); // Created at 1000 seconds
+        let newer_file = mock_metadata(5000); // Created at 5000 seconds
+        let expected_path = PathBuf::from("code/main.rs");
+
+        // Test 1: Destination has the newer file -> Engine must copy Dest to Source
+        let action1 = resolve_conflict(&older_file, &newer_file, &ConflictStrategy::NewerWins);
+        assert_eq!(action1, SyncAction::CopyDestToSource(expected_path.clone()));
+
+        // Test 2: Source has the newer file -> Engine must copy Source to Dest
+        let action2 = resolve_conflict(&newer_file, &older_file, &ConflictStrategy::NewerWins);
+        assert_eq!(action2, SyncAction::CopySourceToDest(expected_path.clone()));
+    }
+
+    #[test]
+    fn test_strategy_hard_overrides() {
+        let source_file = mock_metadata(1000);
+        let dest_file = mock_metadata(5000);
+        let expected_path = PathBuf::from("code/main.rs");
+
+        // Even though dest is newer, SourceWins must force a SourceToDest copy
+        let source_action = resolve_conflict(&source_file, &dest_file, &ConflictStrategy::SourceWins);
+        assert_eq!(source_action, SyncAction::CopySourceToDest(expected_path.clone()));
+
+        // Even though source is newer (swapped), DestWins must force a DestToSource copy
+        let dest_action = resolve_conflict(&dest_file, &source_file, &ConflictStrategy::DestWins);
+        assert_eq!(dest_action, SyncAction::CopyDestToSource(expected_path));
+    }
+}

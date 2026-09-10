@@ -73,3 +73,27 @@ pub fn scan_directory_tree(root: &Path, ignore_patterns: &[String]) -> Result<Ha
                                              }
     Ok(file_map)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_compute_file_hash_correctness() {
+        // Spawn an isolated temporary file
+        let mut temp_file = NamedTempFile::new().expect("Failed to create temp file");
+        
+        // Write exactly 11 bytes to disk
+        write!(temp_file, "hello world").expect("Failed to write buffer");
+        
+        // The universally accepted SHA-256 hash for the string "hello world"
+        let expected_sha256 = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9";
+        
+        // Feed the physical file path through your 8KB chunking engine
+        let computed_hash = compute_file_hash(temp_file.path()).unwrap();
+        
+        assert_eq!(computed_hash, expected_sha256, "Cryptographic hash mismatch");
+    }
+}
