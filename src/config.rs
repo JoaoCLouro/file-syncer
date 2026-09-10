@@ -71,11 +71,11 @@ pub fn parse_args() -> Result<Command, SyncerError> {
     let cli = Cli::parse();
 
     match cli.event {
-        Command::Watch {source, destination, verbose, dry_run, debounce,}=> {
+        Command::Watch {source, destination, verbose, dry_run, debounce, config_path }=> {
             if verbose {
-            println!("Starting watcher...");
-            println!("Source: {:?}", source);
-            println!("Destination: {:?}", destination);
+                println!("Starting watcher...");
+                println!("Source: {:?}", source);
+                println!("Destination: {:?}", destination);
             }
 
             if dry_run {
@@ -91,7 +91,7 @@ pub fn parse_args() -> Result<Command, SyncerError> {
             }
 
             // If both checks pass, return the config directly
-            Ok(Command::Watch { source, destination, verbose, dry_run, debounce})
+            Ok(Command::Watch { source, destination, config_path, verbose, dry_run, debounce })
         },
 
         // If any more events added match them here
@@ -120,7 +120,7 @@ pub fn load_toml_config(path: &Path) -> Result<TomlConfig, SyncerError> {
 
 pub fn build_runtime(cli: Command, toml: TomlConfig) -> RuntimeConfig {
     match cli {
-        Command::Watch { source, destination, verbose, dry_run, debounce } => {
+        Command::Watch { source, destination, verbose, dry_run, debounce, config_path: _ } => {
             RuntimeConfig {
                 source,
                 destination,

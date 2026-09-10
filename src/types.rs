@@ -73,6 +73,8 @@ pub enum Command {
     Watch {
         source: PathBuf,
         destination: PathBuf,
+        #[arg(long, default_value = "config.toml")]
+        config_path: PathBuf,
         #[arg(short, long)]
         verbose: bool,
         #[arg(long)]

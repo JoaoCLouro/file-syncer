@@ -5,3 +5,4 @@ pub mod planner;
 pub mod index;
 pub mod conflict;   // conflict handler
 pub mod executor;   
+pub mod watcher;
