@@ -131,7 +131,7 @@ Want code on multiple devices, with a central source of truth:
 ## Features Roadmap
 
 
-### 🖥️ v3 : Central Server Mode
+### v3: Central Server Mode
 
 **New Architecture:**
 - **Server Component** (runs on Raspberry Pi or mini server)
@@ -214,7 +214,7 @@ strategy = "newer"  # or "ask", "manual"
 
 ---
 
-### 📋 Future Enhancements (Post-v3)
+### Future Enhancements (Post-v3)
 
 - **WebSocket support** — Real-time sync updates instead of polling
 - **Delta sync** — Only transfer file changes (diffs), not full files
