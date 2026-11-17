@@ -1,0 +1,33 @@
+name: file-syncer
+
+services:
+  server:
+    container_name: middleman_server
+    image: docker.io/rust/rust:slim-trixie
+    ports:
+      - "127.0.0.1:80:8080"
+    volumes:
+      - server: /server
+    healthcheck:
+      test: ["CMD"]
+      # TODO
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    environment:
+
+    mem_limit: ${MAX_MEM:-5}g
+    networks:
+      - default
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-previligies:true
+
+networks:
+  default:
+    internal: true
+    
+volumes:
+  server:
