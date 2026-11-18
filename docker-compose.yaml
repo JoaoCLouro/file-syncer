@@ -5,17 +5,19 @@ services:
     container_name: middleman_server
     image: docker.io/rust/rust:slim-trixie
     ports:
+      # Assigns localhost port 80 to 8080 on the container
       - "127.0.0.1:80:8080"
     volumes:
-      - server: /server
+      - server:/server
     healthcheck:
-      test: ["CMD"]
-      # TODO
+      # Healthcheck on the server
+      test: ["CMD", "curl -f $IP_ADD/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
     environment:
+      IP_ADD: ${THIS_IP:-https://localhost:8080}
 
     mem_limit: ${MAX_MEM:-5}g
     networks:
@@ -28,6 +30,6 @@ services:
 networks:
   default:
     internal: true
-    
+
 volumes:
   server:
