@@ -1,15 +1,11 @@
+use crate::types::{Command, ConflictStrategy, SyncerError};
+use clap::Parser;
+use serde::Deserialize;
+use std::fs;
 /// Module for managing configuration of the syncer application, including command-line arguments and TOML configuration files.
 /// This module provides functionality to parse command-line arguments using `clap`, load configuration from a TOML file, and combine both sources into a runtime configuration structure.
 /// The configuration management is designed to be flexible, allowing users to specify settings via command-line arguments or a configuration file, with sensible defaults provided for missing values.
-
-
 use std::path::{Path, PathBuf};
-use std::fs;
-use clap::Parser;
-use serde::Deserialize;
-use crate::types::{Command, ConflictStrategy, SyncerError};
-
-
 
 // ====================================================
 // Structs and functions for configuration management
@@ -30,7 +26,7 @@ struct Cli {
 pub struct TomlConfig {
     #[serde(default = "default_conflict_strategy")]
     pub conflict_strategy: ConflictStrategy,
-    
+
     #[serde(default)]
     pub ignore_patterns: Vec<String>,
 }
@@ -62,7 +58,6 @@ pub struct RuntimeConfig {
     pub ignore_patterns: Vec<String>,
 }
 
-
 // ====================================================================
 // Functions for parsing CLI arguments and loading TOML configuration
 // ====================================================================
@@ -71,7 +66,14 @@ pub fn parse_args() -> Result<Command, SyncerError> {
     let cli = Cli::parse();
 
     match cli.event {
-        Command::Watch {source, destination, verbose, dry_run, debounce, config_path }=> {
+        Command::Watch {
+            source,
+            destination,
+            verbose,
+            dry_run,
+            debounce,
+            config_path,
+        } => {
             if verbose {
                 println!("Starting watcher...");
                 println!("Source: {:?}", source);
@@ -83,18 +85,138 @@ pub fn parse_args() -> Result<Command, SyncerError> {
             }
 
             if !source.exists() {
-                return Err(SyncerError::ValidationError(format!("Source path does not exist: {:?}", source)));
+                return Err(SyncerError::ValidationError(format!(
+                    "Source path does not exist: {:?}",
+                    source
+                )));
             }
 
             if !destination.exists() {
-                return Err(SyncerError::ValidationError(format!("Destination path does not exist: {:?}", destination)));
+                return Err(SyncerError::ValidationError(format!(
+                    "Destination path does not exist: {:?}",
+                    destination
+                )));
             }
 
             // If both checks pass, return the config directly
-            Ok(Command::Watch { source, destination, config_path, verbose, dry_run, debounce })
-        },
+            Ok(Command::Watch {
+                source,
+                destination,
+                config_path,
+                verbose,
+                dry_run,
+                debounce,
+            })
+        }
 
-        // If any more events added match them here
+        Command::StopSpecific {
+            source,
+            destination,
+            config_path,
+            verbose,
+            dry_run,
+            debounce,
+        } => {
+            if verbose {
+                println!("Stoping watcher...");
+                println!("Source: {:?}", source);
+                println!("Destination: {:?}", destination)
+            }
+
+            if dry_run {
+                println!("[DRY RUN MODE ENABLED]");
+            }
+
+            if !source.exists() {
+                return Err(SyncerError::ValidationError(format!(
+                    "Source path does not exist: {:?}",
+                    source
+                )));
+            }
+
+            if !destination.exists() {
+                return Err(SyncerError::ValidationError(format!(
+                    "Destination path does not exist: {:?}",
+                    destination
+                )));
+            }
+
+            // If both checks pass, return the config directly
+            Ok(Command::StopSpecific {
+                source,
+                destination,
+                config_path,
+                verbose,
+                dry_run,
+                debounce,
+            })
+        }
+
+        Command::StopAllFrom {
+            source,
+            config_path,
+            verbose,
+            dry_run,
+            debounce,
+        } => {
+            if verbose {
+                println!("Stoping watcher...");
+                println!("Source: {:?}", source);
+            }
+
+            if dry_run {
+                println!("[DRY RUN MODE ENABLED]");
+            }
+
+            if !source.exists() {
+                return Err(SyncerError::ValidationError(format!(
+                    "Source path does not exist: {:?}",
+                    source
+                )));
+            }
+
+            // If both checks pass, return the config directly
+            Ok(Command::StopAllFrom {
+                source,
+                config_path,
+                verbose,
+                dry_run,
+                debounce,
+            })
+        }
+
+        Command::StopAllTo {
+            destination,
+            config_path,
+            verbose,
+            dry_run,
+            debounce,
+        } => {
+            if verbose {
+                println!("Stoping watcher...");
+                println!("Destination: {:?}", destination);
+            }
+
+            if dry_run {
+                println!("[DRY RUN MODE ENABLED]");
+            }
+
+            if !destination.exists() {
+                return Err(SyncerError::ValidationError(format!(
+                    "Destination path does not exist: {:?}",
+                    destination
+                )));
+            }
+
+            // If both checks pass, return the config directly
+            Ok(Command::StopAllTo {
+                destination,
+                config_path,
+                verbose,
+                dry_run,
+                debounce,
+            })
+        }
     }
 }
 
@@ -102,35 +224,47 @@ pub fn load_toml_config(path: &Path) -> Result<TomlConfig, SyncerError> {
     let toml_str = match fs::read_to_string(path) {
         Ok(content) => content,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-            // File is missing: return silent default 
+            // File is missing: return silent default
             return Ok(TomlConfig::default());
         }
         Err(e) => {
-            // File exists but cannot be read 
-            return Err(SyncerError::Config(format!("Failed to read config file at {:?}: {}", path, e)));
+            // File exists but cannot be read
+            return Err(SyncerError::Config(format!(
+                "Failed to read config file at {:?}: {}",
+                path, e
+            )));
         }
     };
 
-    let config: TomlConfig = toml::from_str(&toml_str).map_err(|e| {
-        SyncerError::Config(format!("Failed to parse TOML syntax: {}", e))
-    })?;
+    let config: TomlConfig = toml::from_str(&toml_str)
+        .map_err(|e| SyncerError::Config(format!("Failed to parse TOML syntax: {}", e)))?;
 
     Ok(config)
 }
 
-pub fn build_runtime(cli: Command, toml: TomlConfig) -> RuntimeConfig {
+pub fn build_runtime(cli: Command, toml: TomlConfig) -> Result<RuntimeConfig, SyncerError> {
     match cli {
-        Command::Watch { source, destination, verbose, dry_run, debounce, config_path: _ } => {
-            RuntimeConfig {
-                source,
-                destination,
-                verbose,
-                dry_run,
-                debounce,
-                conflict_strategy: toml.conflict_strategy,
-                ignore_patterns: toml.ignore_patterns,
-            }
-        },
-        // Match potential future commands here
+        Command::Watch {
+            source,
+            destination,
+            verbose,
+            dry_run,
+            debounce,
+            config_path: _,
+        } => Ok(RuntimeConfig {
+            source,
+            destination,
+            verbose,
+            dry_run,
+            debounce,
+            conflict_strategy: toml.conflict_strategy,
+            ignore_patterns: toml.ignore_patterns,
+        }),
+
+        _ => {
+            return Err(SyncerError::UnsupportedCommand(
+                ("Command Config Not Buildable").to_string(),
+            ));
+        }
     }
 }
