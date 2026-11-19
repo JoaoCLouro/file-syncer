@@ -1,8 +1,8 @@
-use std::{path::PathBuf};
 use clap::Subcommand;
-use thiserror::Error;
-use serde::Deserialize;
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
+use serde::Deserialize;
+use std::path::PathBuf;
+use thiserror::Error;
 
 #[derive(Debug)]
 pub enum SyncEvent {
@@ -17,15 +17,15 @@ pub enum SyncAction {
     DeleteSource(PathBuf),
     DeleteDest(PathBuf),
     ManualResolution(PathBuf, PathBuf), // Source path, Destination path
-    Conflict(PathBuf, u64, u64),    // Path, source modified time, dest modified time
+    Conflict(PathBuf, u64, u64),        // Path, source modified time, dest modified time
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Archive, RkyvSerialize, RkyvDeserialize)]
 #[archive(check_bytes)]
 pub struct FileMetaData {
-    pub relative_path: String,  // PathBuf conversion to string for serialization
+    pub relative_path: String, // PathBuf conversion to string for serialization
     pub size: u64,
-    pub modified_time: u64,     // SystemTime converted to u64 for serialization
+    pub modified_time: u64, // SystemTime converted to u64 for serialization
     pub hash: String,
 }
 
@@ -56,8 +56,11 @@ pub enum SyncerError {
     ValidationError(String),
 
     #[error("{0}")]
+    UnsupportedCommand(String),
+
+    #[error("{0}")]
     HashError(String),
-    
+
     #[error("{0}")]
     ConflictError(String),
 
@@ -72,6 +75,44 @@ pub enum SyncerError {
 pub enum Command {
     Watch {
         source: PathBuf,
+        destination: PathBuf,
+        #[arg(long, default_value = "config.toml")]
+        config_path: PathBuf,
+        #[arg(short, long)]
+        verbose: bool,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long, default_value = "500")]
+        debounce: u64,
+    },
+
+    // New feats
+    StopSpecific {
+        source: PathBuf,
+        destination: PathBuf,
+        #[arg(long, default_value = "config.toml")]
+        config_path: PathBuf,
+        #[arg(short, long)]
+        verbose: bool,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long, default_value = "500")]
+        debounce: u64,
+    },
+
+    StopAllFrom {
+        source: PathBuf,
+        #[arg(long, default_value = "config.toml")]
+        config_path: PathBuf,
+        #[arg(short, long)]
+        verbose: bool,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long, default_value = "500")]
+        debounce: u64,
+    },
+
+    StopAllTo {
         destination: PathBuf,
         #[arg(long, default_value = "config.toml")]
         config_path: PathBuf,
