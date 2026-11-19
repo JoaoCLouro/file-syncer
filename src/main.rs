@@ -8,6 +8,8 @@ use std::time::Duration;
 fn main() -> Result<(), SyncerError> {
     let cli_command = config::parse_args()?;
 
+    // Improvement Plan:
+    // -> Remove clone as it takes more memory than reasonable
     match cli_command.clone() {
         Command::Watch {
             source: _,
@@ -17,13 +19,16 @@ fn main() -> Result<(), SyncerError> {
             dry_run: _,
             debounce,
         } => {
+            // Config building
             let toml_config = config::load_toml_config(&config_path)?;
-            let runtime = config::build_runtime(cli_command, toml_config);
+            let runtime = config::build_runtime(cli_command, toml_config)?;
 
+            // Resources building
             let db = state::init_db(&runtime.source)?;
-
             let (_watcher_handle, rx) =
                 DirectoryWatcher::spawn(runtime.source.clone(), runtime.ignore_patterns.clone())?;
+            // Helpers
+            let debounce_duration = Duration::from_millis(debounce);
 
             if runtime.verbose {
                 println!(
@@ -31,8 +36,6 @@ fn main() -> Result<(), SyncerError> {
                     runtime.source.display()
                 );
             }
-
-            let debounce_duration = Duration::from_millis(debounce);
 
             // Defines the sync cycle as a closure so we can call it on startup AND on events
             let run_sync_cycle = || -> Result<(), SyncerError> {
@@ -89,6 +92,28 @@ fn main() -> Result<(), SyncerError> {
                 }
             }
         }
+        Command::StopSpecific {
+            source,
+            destination,
+            config_path,
+            verbose,
+            dry_run,
+            debounce,
+        } => {}
+        Command::StopAllFrom {
+            source,
+            config_path,
+            verbose,
+            dry_run,
+            debounce,
+        } => {}
+        Command::StopAllTo {
+            destination,
+            config_path,
+            verbose,
+            dry_run,
+            debounce,
+        } => {}
     }
 
     Ok(())
