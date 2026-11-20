@@ -20,6 +20,9 @@ walkdir = "2.5.0"
 rkyv = { version = "0.7", features = ["validation"] }
 toml = "0.8"
 dotenv = "0.15.0"
+axum = "0.8.9"
+tokio = "1.54.1"
+dashmap = "6.2.1"
 
 [dev-dependencies]
 tempfile = "3.27.0"

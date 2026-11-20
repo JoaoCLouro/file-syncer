@@ -1,11 +1,9 @@
 use crate::types::{Command, ConflictStrategy, SyncerError};
 
 use clap::Parser;
-use dotenv::dotenv;
 use serde::Deserialize;
 
 use std::fs;
-use std::net::Ipv6Addr;
 use std::path::{Path, PathBuf};
 
 /// Module for managing configuration of the syncer application, including command-line arguments and TOML configuration files.
@@ -61,19 +59,6 @@ pub struct RuntimeConfig {
     pub debounce: u64,
     pub conflict_strategy: ConflictStrategy,
     pub ignore_patterns: Vec<String>,
-}
-
-#[derive(Debug, Clone)]
-pub struct NetInfo {
-    pub ip: Ipv6Addr,
-    pub port: u16,
-    pub path: PathBuf,
-}
-
-#[derive(Debug, Clone)]
-pub struct SyncInfo {
-    pub source: NetInfo,
-    pub dest: NetInfo,
 }
 
 // ====================================================================
@@ -285,8 +270,4 @@ pub fn build_runtime(cli: Command, toml: TomlConfig) -> Result<RuntimeConfig, Sy
             ));
         }
     }
-}
-
-pub fn build_server_config(cli: Command, toml: TomlConfig) -> Result<SyncInfo, SyncerError> {
-    todo!("Build the server side necessary info based on the SyncInfo type")
 }

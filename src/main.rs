@@ -1,5 +1,5 @@
 use file_syncer::{
-    config, executor, index, planner, state,
+    config, executor, index, planner, server, state,
     types::{Command, SyncerError},
     watcher::DirectoryWatcher,
 };
