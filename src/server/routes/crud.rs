@@ -1,12 +1,12 @@
 use axum::{
+    body::Bytes,
     extract::{Path, State},
     http::StatusCode,
-    Json
 };
+use rkyv::{Deserialize, Infallible, check_archived_root};
+use sha2::{Digest, Sha256};
 
-use std::hash::{DefaultHasher, Hash, Hasher};
-
-use super::super::{UserPool, User, NetInfo};
+use super::super::{User, UserPool};
 
 pub async fn root() -> &'static str {
     "Server serving"
@@ -14,36 +14,33 @@ pub async fn root() -> &'static str {
 
 pub async fn create_user(
     State(pool): State<UserPool>,
-    Json(payload): Json<User>,
-) -> (StatusCode, Json<u64>) {
-    let user = User {
-        net: NetInfo {
-            ip: (payload.net.ip),
-            port: (payload.net.port),
-        },
-        path: payload.path,
-    };
-    let hash = calculate_hash(&user);
+    body: Bytes,
+) -> Result<(StatusCode, String), StatusCode> {
+    // Validate the body received
+    let archive =
+        check_archived_root::<(User, User)>(&body).map_err(|_| StatusCode::BAD_REQUEST)?;
 
-    match pool.insert(hash, user.clone()) {
-        // Already on the map => altered
-        Some(_) => (StatusCode::OK, Json(hash)),
-        // Not on the map => created
-        None => (StatusCode::CREATED, Json(hash)),
+    // Deserialize the received content
+    let content: (User, User) = archive
+        .deserialize(&mut Infallible)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Hatch the received bytes to create a new user on the user pool
+    let digest = Sha256::digest(&body);
+    let hash: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+
+    match pool.insert(hash.clone(), content) {
+        Some(_) => Ok((StatusCode::OK, hash)),
+        None => Ok((StatusCode::CREATED, hash)),
     }
 }
 
-pub async fn remove_user(State(pool): State<UserPool>, Path(user_hash): Path<u64>) -> StatusCode {
+pub async fn remove_user(
+    State(pool): State<UserPool>,
+    Path(user_hash): Path<String>,
+) -> StatusCode {
     match pool.remove(&user_hash) {
         Some(_) => StatusCode::OK,
         None => StatusCode::NOT_FOUND,
     }
-}
-
-// Helpers
-
-fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut s = DefaultHasher::new();
-    t.hash(&mut s);
-    s.finish()
 }

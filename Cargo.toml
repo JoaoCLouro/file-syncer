@@ -12,7 +12,6 @@ repository = "https://github.com/JoaoCLouro/file-syncer"
 clap = { version = "4.6.6", features = ["derive"] }
 ctrlc = "3.5.2"
 notify = "8.2.0"
-serde = { version = "1.0.229", features = ["derive"] } # Can combine serde_derive into features
 sha2 = "0.11.0"
 sled = "0.34.7"
 thiserror = "2.0.20"

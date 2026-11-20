@@ -1,34 +1,30 @@
 use dashmap::DashMap;
 use dotenv;
 use local_ip_address::local_ip;
-use serde::{Deserialize, Serialize};
+use rkyv::{Archive, Deserialize, Serialize};
 use tokio::net::TcpListener;
 
-use std::{net::Ipv6Addr, path::PathBuf, sync::Arc};
+use std::{net::Ipv6Addr, sync::Arc};
 
 use routes::setup_routes;
 
 pub mod routes;
 
-#[derive(Debug, Clone, PartialEq, Hash, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Archive, Serialize, Deserialize)]
+#[archive(check_bytes)]
 pub struct User {
     pub net: NetInfo,
-    pub path: PathBuf,
+    pub path: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Archive, Serialize, Deserialize)]
+#[archive(check_bytes)]
 pub struct NetInfo {
     pub ip: Ipv6Addr,
     pub port: u16,
 }
 
-#[derive(Debug, Clone)]
-pub struct SyncInfo {
-    pub source: User,
-    pub dest: User,
-}
-
-type UserPool = Arc<DashMap<u64, User>>;
+type UserPool = Arc<DashMap<String, (User, User)>>;
 
 #[tokio::main(flavor = "multi_thread")]
 pub async fn build_server() {

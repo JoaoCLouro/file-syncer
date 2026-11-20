@@ -469,7 +469,6 @@ dependencies = [
  "local-ip-address",
  "notify",
  "rkyv",
- "serde",
  "sha2",
  "sled",
  "tempfile",
