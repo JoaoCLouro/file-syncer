@@ -1,6 +1,5 @@
 use clap::Subcommand;
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
-use serde::Deserialize;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -20,7 +19,7 @@ pub enum SyncAction {
     Conflict(PathBuf, u64, u64),        // Path, source modified time, dest modified time
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Archive, RkyvSerialize, RkyvDeserialize)]
+#[derive(Debug, Clone, Hash, Archive, RkyvSerialize, RkyvDeserialize)]
 #[archive(check_bytes)]
 pub struct FileMetaData {
     pub relative_path: String, // PathBuf conversion to string for serialization
@@ -29,15 +28,26 @@ pub struct FileMetaData {
     pub hash: String,
 }
 
+#[derive(Debug, Clone, Hash, Archive, RkyvSerialize, RkyvDeserialize)]
+#[archive(check_bytes)]
+pub struct Alteration {
+    pub file: String,
+    pub line: u16,
+    pub content: String,
+}
+
+#[derive(Debug, Clone, Hash, Archive, RkyvSerialize, RkyvDeserialize)]
+#[archive(check_bytes)]
+pub struct EventLog {
+    pub fmt: FileMetaData,
+    pub altered_content: Vec<Alteration>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub enum ConflictStrategy {
-    #[serde(rename = "newer")]
     NewerWins,
-    #[serde(rename = "manual")]
     ManualPrompt,
-    #[serde(rename = "source")]
     SourceWins,
-    #[serde(rename = "dest")]
     DestWins,
 }
 

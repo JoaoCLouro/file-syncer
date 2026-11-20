@@ -6,6 +6,7 @@ use tokio::net::TcpListener;
 
 use std::{net::Ipv6Addr, sync::Arc};
 
+use crate::types::EventLog;
 use routes::setup_routes;
 
 pub mod routes;
@@ -22,6 +23,13 @@ pub struct User {
 pub struct NetInfo {
     pub ip: Ipv6Addr,
     pub port: u16,
+}
+
+#[derive(Debug, Clone, Hash, Archive, Serialize, Deserialize)]
+#[archive(check_bytes)]
+pub struct RequestInfo {
+    pub hash: String,
+    pub event: EventLog,
 }
 
 type UserPool = Arc<DashMap<String, (User, User)>>;

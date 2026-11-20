@@ -6,7 +6,7 @@ use axum::{
 use rkyv::{Deserialize, Infallible, check_archived_root};
 use sha2::{Digest, Sha256};
 
-use super::super::{User, UserPool};
+use super::super::{RequestInfo, User, UserPool};
 
 pub async fn root() -> &'static str {
     "Server serving"
@@ -42,5 +42,20 @@ pub async fn remove_user(
     match pool.remove(&user_hash) {
         Some(_) => StatusCode::OK,
         None => StatusCode::NOT_FOUND,
+    }
+}
+
+pub async fn send_data(State(pool): State<UserPool>, body: Bytes) -> StatusCode {
+    let archive = check_archived_root::<RequestInfo>(&body)
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let content: RequestInfo = archive
+        .deserialize(&mut Infallible)
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    if pool.get(&content.hash).is_some() {
+        todo!("Implement data sending logic");
+    } else {
+        StatusCode::NOT_FOUND
     }
 }

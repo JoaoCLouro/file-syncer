@@ -13,5 +13,6 @@ pub fn setup_routes(pool: UserPool) -> Router {
         .route("/", get(root))
         .route("/users", post(create_user))
         .route("/quit/{hash}", post(remove_user))
+        .route("/send", post(send_data))
         .with_state(pool)
 }
