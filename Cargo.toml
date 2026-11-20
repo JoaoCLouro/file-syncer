@@ -21,7 +21,7 @@ rkyv = { version = "0.7", features = ["validation"] }
 toml = "0.8"
 dotenv = "0.15.0"
 axum = "0.8.9"
-tokio = "1.54.1"
+tokio = {version = "1.54.1", features = ["rt-multi-thread"]}
 dashmap = "6.2.1"
 
 [dev-dependencies]
