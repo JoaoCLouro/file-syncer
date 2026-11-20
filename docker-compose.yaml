@@ -6,7 +6,7 @@ services:
     image: docker.io/rust/rust:slim-trixie
     ports:
       # Assigns localhost port 80 to 8080 on the container
-      - "127.0.0.1:80:${SERVER_PORT}"
+      - "127.0.0.1:80:${SERVER_PORT:-8080}"
     volumes:
       - server:/server
     healthcheck:
@@ -17,8 +17,8 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      PORT: ${SERVER_PORT}
-      IP_ADD: ${IP_ADD:-https://localhost:${SERVER_PORT}}
+      PORT: ${SERVER_PORT:-8080}
+      IP_ADD: ${IP_ADD:-https://localhost:${SERVER_PORT}:-8080}
 
     mem_limit: ${MAX_MEM:-5}g
     networks:
