@@ -46,8 +46,7 @@ pub async fn remove_user(
 }
 
 pub async fn send_data(State(pool): State<UserPool>, body: Bytes) -> StatusCode {
-    let archive = check_archived_root::<RequestInfo>(&body)
-        .map_err(|_| StatusCode::BAD_REQUEST)?;
+    let archive = check_archived_root::<RequestInfo>(&body).map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let content: RequestInfo = archive
         .deserialize(&mut Infallible)

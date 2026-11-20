@@ -1,7 +1,9 @@
 use clap::Subcommand;
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
-use std::path::PathBuf;
+use serde::Deserialize;
 use thiserror::Error;
+
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub enum SyncEvent {
@@ -45,9 +47,13 @@ pub struct EventLog {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub enum ConflictStrategy {
+    #[serde(rename = "newer")]
     NewerWins,
+    #[serde(rename = "manual")]
     ManualPrompt,
+    #[serde(rename = "source")]
     SourceWins,
+    #[serde(rename = "dest")]
     DestWins,
 }
 
