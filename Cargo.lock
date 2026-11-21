@@ -466,6 +466,7 @@ dependencies = [
  "ctrlc",
  "dashmap",
  "dotenv",
+ "http-body-util",
  "local-ip-address",
  "notify",
  "rkyv",
@@ -476,6 +477,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "toml",
+ "tower",
  "walkdir",
 ]
 

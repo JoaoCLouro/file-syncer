@@ -4,7 +4,7 @@ use local_ip_address::local_ip;
 use rkyv::{Archive, Deserialize, Serialize};
 use tokio::net::TcpListener;
 
-use std::{net::Ipv6Addr, sync::Arc};
+use std::sync::Arc;
 
 use crate::types::EventLog;
 use routes::setup_routes;
@@ -21,7 +21,7 @@ pub struct User {
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Archive, Serialize, Deserialize)]
 #[archive(check_bytes)]
 pub struct NetInfo {
-    pub ip: Ipv6Addr,
+    pub ip: String,
     pub port: u16,
 }
 
