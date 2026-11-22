@@ -7,9 +7,9 @@ use tokio::net::TcpListener;
 use std::sync::Arc;
 
 use crate::types::EventLog;
-use routes::setup_routes;
+use server_routes::setup_routes;
 
-pub mod routes;
+pub mod server_routes;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Archive, Serialize, Deserialize)]
 #[archive(check_bytes)]
@@ -34,6 +34,8 @@ pub struct RequestInfo {
 
 type UserPool = Arc<DashMap<String, (User, User)>>;
 
+const DEFAULT_PORT: u16 = 8080;
+
 #[tokio::main(flavor = "multi_thread")]
 pub async fn build_server() {
     // Loads the .env file
@@ -51,12 +53,12 @@ pub async fn build_server() {
 fn validate_port(s: &str) -> u16 {
     let trimmed = s.trim();
     if trimmed.is_empty() {
-        return 8080;
+        return DEFAULT_PORT;
     }
 
     match trimmed.parse::<u16>() {
-        Ok(0) => 8080,
+        Ok(0) => DEFAULT_PORT,
         Ok(port) => port,
-        Err(_) => 8080,
+        Err(_) => DEFAULT_PORT,
     }
 }

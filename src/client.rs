@@ -1,8 +1,8 @@
 use std::time::Duration;
 use tokio::{macros::select, net::TcpListener, select, sync::mpsc};
 
-pub mod router;
-use routes::build_client;
+pub mod client_routes;
+use client_routes::build_client;
 
 const DEFAULT_PORT: u16 = 3000;
 

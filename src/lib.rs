@@ -1,3 +1,4 @@
+pub mod client;
 pub mod config; // new cli
 pub mod conflict; // conflict handler
 pub mod executor;
