@@ -1,7 +1,11 @@
 use local_ip_address::local_ip;
 use rkyv::{Archive, Deserialize, Serialize};
-use std::collections::VecDeque;
-use tokio::{net::TcpListener, sync::mpsc};
+use std::sync::{Arc, Mutex};
+use std::{collections::VecDeque, rc::Rc};
+use tokio::{
+    net::TcpListener,
+    sync::mpsc::{Receiver, Sender, channel},
+};
 
 pub mod client_routes;
 use client_routes::build_client;
@@ -18,18 +22,31 @@ pub struct RequestAction {
     actions: Vec<Changes>,
 }
 
+#[derive(Debug, Clone)]
+pub struct AppState<T> {
+    tx: Sender<T>,
+    rx: Arc<Mutex<Receiver<T>>>,
+    requests: Arc<Mutex<VecDeque<RequestAction>>>,
+}
+
 const DEFAULT_PORT: u16 = 3000;
 
 async fn serve_client() {
     let port: u16 = validate_port(&dotenv::var("CLIENT_PORT").unwrap());
     let ip = local_ip().unwrap();
     // tokio channel for inner local network connections
-    let (tx, mut rx) = mpsc::channel(32);
-    let requests = VecDeque::<RequestAction>::new();
+    let (tx, rx) = channel::<RequestAction>(32); //tokio::sync::mpcs::channel
 
+    let state = AppState {
+        tx: tx,
+        rx: Arc::new(Mutex::new(rx)),
+        requests: Arc::new(Mutex::new(VecDeque::<RequestAction>::new())),
+    };
     // Pass the receiver to the app so it can be used
-    let app = build_client(rx.clone());
+    let app = build_client(state);
     let listener = TcpListener::bind((ip, port)).await.unwrap();
+
+    axum::serve(listener, app).await.unwrap();
 }
 
 fn validate_port(s: &str) -> u16 {

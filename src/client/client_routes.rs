@@ -1,7 +1,10 @@
-use axum::{
-    Router,
-    routing::{get, post},
-};
-use tokio::sync::watch::Receiver;
+use axum::{Router, routing::post};
 
-pub fn build_client(rx: Receiver) -> Routes {}
+use super::AppState;
+
+pub fn build_client<T: Send + Clone + 'static>(state: AppState<T>) -> Router {
+    Router::new()
+        .route("/send", post(send_request))
+        .route("/receive", post(execute_action))
+        .with_state(state)
+}
