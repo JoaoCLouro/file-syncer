@@ -1,8 +1,22 @@
-use std::time::Duration;
-use tokio::{macros::select, net::TcpListener, select, sync::mpsc};
+use local_ip_address::local_ip;
+use rkyv::{Archive, Deserialize, Serialize};
+use std::collections::VecDeque;
+use tokio::{net::TcpListener, sync::mpsc};
 
 pub mod client_routes;
 use client_routes::build_client;
+
+#[derive(Debug, Clone, Archive, Serialize, Deserialize)]
+pub struct Changes {
+    line: u16,
+    content: String,
+}
+
+#[derive(Debug, Clone, Archive, Serialize, Deserialize)]
+pub struct RequestAction {
+    path: String,
+    actions: Vec<Changes>,
+}
 
 const DEFAULT_PORT: u16 = 3000;
 
@@ -11,18 +25,11 @@ async fn serve_client() {
     let ip = local_ip().unwrap();
     // tokio channel for inner local network connections
     let (tx, mut rx) = mpsc::channel(32);
+    let requests = VecDeque::<RequestAction>::new();
 
     // Pass the receiver to the app so it can be used
     let app = build_client(rx.clone());
     let listener = TcpListener::bind((ip, port)).await.unwrap();
-
-    // Race the ip connection to the tokio channel to find witch connection is being used
-    tokio::select! {
-        // Should complement actions
-        Some(r) = axum::serve(listener, app).await.unwrap();
-        Some(r) = rx.recv().await.unwrap();
-        // Could potentially race against a sleeper timeout
-    }
 }
 
 fn validate_port(s: &str) -> u16 {
