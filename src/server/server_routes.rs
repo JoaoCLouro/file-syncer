@@ -4,9 +4,9 @@ use axum::{
 };
 
 use super::UserPool;
-use crud::*;
+use server_crud::*;
 
-pub mod crud;
+pub mod server_crud;
 
 pub fn setup_routes(pool: UserPool) -> Router {
     Router::new()

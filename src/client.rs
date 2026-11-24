@@ -1,7 +1,7 @@
 use local_ip_address::local_ip;
 use rkyv::{Archive, Deserialize, Serialize};
+use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
-use std::{collections::VecDeque, rc::Rc};
 use tokio::{
     net::TcpListener,
     sync::mpsc::{Receiver, Sender, channel},
@@ -11,12 +11,14 @@ pub mod client_routes;
 use client_routes::build_client;
 
 #[derive(Debug, Clone, Archive, Serialize, Deserialize)]
+#[archive(check_bytes)]
 pub struct Changes {
     line: u16,
     content: String,
 }
 
 #[derive(Debug, Clone, Archive, Serialize, Deserialize)]
+#[archive(check_bytes)]
 pub struct RequestAction {
     path: String,
     actions: Vec<Changes>,
