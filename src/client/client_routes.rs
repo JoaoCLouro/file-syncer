@@ -9,6 +9,5 @@ pub fn build_client(state: AppState<RequestAction>) -> Router {
     Router::new()
         .route("/send", post(send_request))
         .route("/load", post(load_request))
-        .route("/receive", post(execute_action))
         .with_state(state)
 }
