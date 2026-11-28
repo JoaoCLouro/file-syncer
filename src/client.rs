@@ -12,9 +12,18 @@ use client_routes::build_client;
 
 #[derive(Debug, Clone, Archive, Serialize, Deserialize)]
 #[archive(check_bytes)]
+pub enum Action {
+    Replace,
+    Remove,
+    Insert,
+}
+
+#[derive(Debug, Clone, Archive, Serialize, Deserialize)]
+#[archive(check_bytes)]
 pub struct Changes {
     line: u16,
     content: String,
+    action: Action,
 }
 
 #[derive(Debug, Clone, Archive, Serialize, Deserialize)]

@@ -5,7 +5,7 @@ use file_syncer::{
 };
 
 fn main() {
-    let cli_command = config::parse_args()?;
+    let cli_command = config::parse_args();
 
     todo!("Introduce logic to start server or start client at request");
     todo!(
